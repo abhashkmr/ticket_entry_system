@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-const url = 'mongodb+srv://abhash:jlBJW9qKQp82cICa@cluster0.xmccr.mongodb.net/?retryWrites=true&w=majority';
 
 
 export async function connectToDB() {

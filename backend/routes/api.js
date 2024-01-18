@@ -27,13 +27,23 @@ router.post("/support-agent", async (ctx) => {
   }
 });
 
+function convertToISODate(selectedDate) {
+
+  const dateObject = new Date(selectedDate);
+
+  const isoDateString = dateObject.toISOString();
+
+  return isoDateString;
+}
+
 router.post("/support-ticket", async (ctx) => {
   try {
-    const { topic, description, severity, type, assignedTo, status = "New" } =
+    const { topic, description, severity, type, assignedTo ="", status = "New" ,dateCreated} =
       ctx.request.body;
 
-    // Add dateCreated from the code
-    const dateCreated = new Date();
+      const dateCreatedISO = convertToISODate(dateCreated)
+
+      console.log(ctx.request.body)
 
     // Create a new support agent with individual fields
     const newSupportTicket = await SupportTicket.create({
@@ -44,7 +54,7 @@ router.post("/support-ticket", async (ctx) => {
       assignedTo,
       status,
       resolvedOn:'',
-      dateCreated
+      dateCreated:dateCreatedISO
     });
     ctx.status = 201;
     ctx.body = newSupportTicket;

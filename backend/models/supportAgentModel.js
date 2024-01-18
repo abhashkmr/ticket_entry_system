@@ -50,9 +50,8 @@ const supportTicketSchema = new mongoose.Schema({
     required: true
   },
   assignedTo: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'SupportAgent',
-    required: true
+    type:String, 
+    required: false
   },
   status: {
     type: String,

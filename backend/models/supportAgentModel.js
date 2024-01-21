@@ -3,71 +3,102 @@ import mongoose from "mongoose";
 const supportAgentSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
   phone: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   active: {
     type: Boolean,
-    default: true
+    default: true,
   },
   dateCreated: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
-
 
 const supportTicketSchema = new mongoose.Schema({
   topic: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   dateCreated: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   severity: {
     type: String,
-    required: true
+    required: true,
   },
   type: {
     type: String,
-    required: true
+    required: true,
   },
   assignedTo: {
-    type:String, 
-    required: false
+    type: mongoose.Schema.Types.ObjectId,
+    required: false,
   },
   status: {
     type: String,
-    enum: ['New', 'Assigned', 'Resolved'],
-    default: 'New'
+    enum: ["New", "Assigned", "Resolved"],
+    default: "New",
   },
   resolvedOn: {
-    type: Date
-  }
+    type: Date,
+  },
 });
 
-export const SupportAgent = mongoose.model('SupportAgent', supportAgentSchema);
+const supportAgentAssignmentSchema = new mongoose.Schema({
+  supportAgentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["free", "assigned"],
+    default: "free",
+  },
+});
 
-export const SupportTicket = mongoose.model('SupportTicket', supportTicketSchema);
+const supportAgentAssignedSchema = new mongoose.Schema({
+  supportAgentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["free", "assigned"],
+    default: "assigned",
+  },
+});
 
+export const SupportAgent = mongoose.model("SupportAgent", supportAgentSchema);
 
+export const SupportTicket = mongoose.model(
+  "SupportTicket",
+  supportTicketSchema
+);
+export const SupportAgentAssignment = mongoose.model(
+  "SupportAgentAssignment",
+  supportAgentAssignmentSchema
+);
 
-
-
+export const SupportAgentAssigned = mongoose.model(
+  "SupportAgentAssigned",
+  supportAgentAssignedSchema
+);

@@ -1,16 +1,16 @@
 import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
 import CreateAgent from "./pages/createAgent/createAgent";
-import ViewTickets from "./pages/viewTicket/viewTicket";
-import CreateTicket from "./components/CreateTicket/CreateTicket";
 import SupportTicketForm from "./pages/supportTicket/SupportTicket";
 import ViewTicket from "./pages/viewTicket/viewTicket";
+import { Home } from "./pages/landingPage/Home";
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<CreateAgent />} />
-        <Route path="/createTicket" element={<SupportTicketForm />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/create-ticket" element={<SupportTicketForm />} />
         <Route path="/tickets" element={<ViewTicket />} />
+        <Route path="/create-agent" element={<CreateAgent />} />
       </Routes>
     </Router>
   );

@@ -8,6 +8,8 @@ import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const SupportTicketForm = () => {
   const [formData, setFormData] = useState({
     topic: "",
@@ -15,7 +17,7 @@ const SupportTicketForm = () => {
     severity: "",
     type: "",
     assignedTo: "",
-    dateCreated:""
+    dateCreated: "",
   });
 
   const [errors, setErrors] = useState({
@@ -23,6 +25,9 @@ const SupportTicketForm = () => {
     severity: "",
     type: "",
   });
+
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const validateForm = () => {
     let valid = true;
@@ -63,22 +68,27 @@ const SupportTicketForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData)
+    setSuccess(false);
+    setError(false);
 
-    if (validateForm()) {
-      const response = await fetch("http://localhost:8000/api/support-ticket", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    try {
+      if (validateForm()) {
+        const response = await fetch(`${API_URL}/api/support-ticket`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
-      console.log(response)
-
-      if(response.status===201){
-        <div>Support Agent Created</div>
+        if (response.status === 201) {
+          setSuccess(true);
+        } else {
+          setError(true);
+        }
       }
+    } catch (error) {
+      setError(true);
     }
   };
 
@@ -173,6 +183,16 @@ const SupportTicketForm = () => {
           Submit
         </Button>
       </form>
+      {success && (
+        <Typography variant="h4" component="h2" gutterBottom>
+          Ticket created successfully
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="h4" component="h2" gutterBottom>
+          Something went wrong
+        </Typography>
+      )}
     </Container>
   );
 };

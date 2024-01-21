@@ -4,6 +4,8 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const CreateAgent = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -11,6 +13,9 @@ const CreateAgent = () => {
     phone: "",
     description: "",
   });
+
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
 
   const [errors, setErrors] = useState({
     email: "",
@@ -30,17 +35,26 @@ const CreateAgent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      const response = await fetch("http://localhost:8000/api/support-agent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    setSuccess(false);
+    setError(false);
 
-      if(response.status===201){
-        <div>Support Agent Created</div>
+    if (validateForm()) {
+      try {
+        const response = await fetch(`${API_URL}/api/support-agent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.status === 201) {
+          setSuccess(true);
+        } else {
+          setError(true);
+        }
+      } catch (error) {
+        setError(true);
       }
     }
   };
@@ -137,6 +151,16 @@ const CreateAgent = () => {
           Submit
         </Button>
       </form>
+      {success && (
+        <Typography variant="h4" component="h2" gutterBottom>
+          Agent created successfully
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="h4" component="h2" gutterBottom>
+          Something went wrong
+        </Typography>
+      )}
     </Container>
   );
 };

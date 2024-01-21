@@ -4,10 +4,10 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 const API_URL = process.env.REACT_APP_API_URL;
-
-console.log(API_URL, "logging api url");
 
 const ViewTicket = () => {
   const [ticketsData, setTicketsData] = useState(null);
@@ -190,6 +190,18 @@ const ViewTicket = () => {
             </Grid>
           </Paper>
         ))}
+
+      {ticketsData === null && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="50vh" 
+        >
+          <CircularProgress />
+        </Box>
+      )}
+
       <Typography variant="h4" component="h2" gutterBottom>
         {error}
       </Typography>

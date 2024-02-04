@@ -3,6 +3,7 @@ import CreateAgent from "./pages/createAgent/createAgent";
 import SupportTicketForm from "./pages/supportTicket/SupportTicket";
 import ViewTicket from "./pages/viewTicket/viewTicket";
 import { Home } from "./pages/landingPage/Home";
+import ChatApp from "./pages/chatApp/ChatApp";
 function App() {
   return (
     <Router>
@@ -11,6 +12,7 @@ function App() {
         <Route path="/create-ticket" element={<SupportTicketForm />} />
         <Route path="/tickets" element={<ViewTicket />} />
         <Route path="/create-agent" element={<CreateAgent />} />
+        <Route path="/chat" element={<ChatApp/>}/>
       </Routes>
     </Router>
   );

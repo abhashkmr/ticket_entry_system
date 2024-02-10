@@ -11,6 +11,8 @@ import SendIcon from "@mui/icons-material/Send";
 
 import { useState, useEffect } from "react";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const openai = new OpenAI({
   apiKey: "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",
   dangerouslyAllowBrowser: true,
@@ -22,7 +24,17 @@ const thread_id = emptyThread.id;
 const assistant_id = "asst_vF3Hh83NYYlLvpluB8JvRYOr";
 
 export default function ChatApp() {
-  useEffect(() => {});
+  // setInterval(() => {
+  //   listMessages();
+  //   console.log("interval 1")
+  // }, 10000);
+
+  // listMessages();
+
+  // Set up a recurring API call every 5 seconds
+  // const intervalId = setInterval(() => {
+  //   listMessages();
+  // }, 7000);
 
   //   async function createThread() {
 
@@ -53,15 +65,22 @@ export default function ChatApp() {
 
   //  createRun()
 
-  async function listMessages() {
-    const threadMessages = await openai.beta.threads.messages.list(thread_id);
+  // async function listMessages() {
+  //   const threadMessages = await openai.beta.threads.messages.list(thread_id);
 
-    console.log(threadMessages.data);
+  //   console.log(threadMessages.data);
+  // }
+
+  async function getAllTickets() {
+    const res = await fetch(`${API_URL}/api/support-ticket`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const response = await res.json();
+    return response;
   }
-
-  setTimeout(() => {
-    listMessages();
-  }, 10000);
 
   //   async function getRunStatus() {
   //     const run = await openai.beta.threads.runs.retrieve(
@@ -75,9 +94,7 @@ export default function ChatApp() {
   //   getRunStatus()
 
   const generateRandomMessage = (sender) => {
-    const messages = [
-      "Hello!"
-    ];
+    const messages = ["Hello!"];
 
     const randomIndex = Math.floor(Math.random() * messages.length);
     const text = messages[randomIndex];
@@ -96,86 +113,197 @@ export default function ChatApp() {
   const [messages, setMessages] = useState(initialMessages);
   const [userInput, setUserInput] = useState("");
 
+  // useEffect(() => {});
+  let runId=''
   const sendMessage = async () => {
     if (userInput.trim() === "") return;
+
+   
 
     async function listMessages() {
       const threadMessages = await openai.beta.threads.messages.list(thread_id);
 
       // setMessages[...messages,threadMessages.data.map((message)=>message.content.text.value)]
 
-    //   const message = JSON.stringify(threadMessages.data.map((message)=>message))
+      //   const message = JSON.stringify(threadMessages.data.map((message)=>message))
 
-    //   setMessages(message)
+      //   setMessages(message)
 
-       //setMessages(threadMessages.data.map((message) => message.content.map((content)=>content.text.value)));
-       setMessages(
+      //setMessages(threadMessages.data.map((message) => message.content.map((content)=>content.text.value)));
+      // setMessages(
+      //   transformResponse(
+      //     threadMessages.data.map((message) => {
+      //       return {
+      //         content: message.content.map((content) => {
+      //           return {
+      //             text: {
+      //               value: content.text.value,
+      //             },
+      //           };
+      //         }),
+      //       };
+      //     })
+      //   )
+      // );
+      setMessages(
         transformResponse(
-        threadMessages.data.map((message) => {
-        return {
-          content: message.content.map((content) => {
+          threadMessages.data.map((message) => {
             return {
-              text: {
-                value: content.text.value
-              }
+              content: message.content.map((content) => {
+                return {
+                  role: message.role,
+                  text: {
+                    value: content.text.value,
+                  },
+                };
+              }),
+              role: message.role, // Add the role field to each message object
             };
           })
-        };
-      })
-      
-       ));
+        )
+      );
 
       function transformResponse(inputResponse) {
         const transformedResponse = [];
-    
-        inputResponse.forEach(entry => {
-            entry.content.forEach(item => {
-                const textValue = item.text.value;
-                if (textValue.toLowerCase() === 'hello! how can i assist you today?') {
-                    transformedResponse.push({ text: 'Do you have any specific questions?', sender: 'assistant' });
-                } else {
-                    transformedResponse.push({ text: textValue, sender: 'assistant' });
-                }
-            });
+
+        inputResponse.reverse().forEach((entry) => {
+          entry.content.forEach((item) => {
+            const textValue = item.text.value;
+            if (
+              textValue.toLowerCase() === "hello! how can i assist you today?"
+            ) {
+              transformedResponse.push({
+                text: "Do you have any specific questions?",
+                sender: "assistant",
+              });
+            } else {
+              transformedResponse.push({
+                text: textValue,
+                sender: item.role,
+              });
+            }
+          });
         });
-    
+
         return transformedResponse;
+      }
     }
 
-
-      
-    }
-
-    setTimeout(() => {
-       listMessages();
-       
-    }, 5000);
-
-     setMessages([...messages, { text: userInput, sender: "user" }]);
+    setMessages([...messages, { text: userInput, sender: "user" }]);
     setUserInput("");
 
-    const threadMessages = await openai.beta.threads.messages.create(
-      thread_id,
-      { role: "user", content: userInput }
-    );
+    console.log(runId,'logging run bjhbjashbh')
 
-    console.log(threadMessages, "message");
-    const run = await openai.beta.threads.runs.create(thread_id, {
-      assistant_id: assistant_id,
-    });
+  
+    try {
+      const run = await openai.beta.threads.runs.cancel(
+        thread_id,
+         runId
+       );
+      
+    } catch (error) {
+      console.log(error)
+    }
 
-    console.log(run, "run object");
+
+
+    try {
+       const threadMessages = await openai.beta.threads.messages.create(
+        thread_id,
+        { role: "user", content: userInput }
+      );
+
+     
+    } catch (error) {
+      console.log(error);
+    }
+
+      try {
+        const run = await openai.beta.threads.runs.create(
+          thread_id,
+          {
+            assistant_id: assistant_id,
+          },
+          { tools: [{ type: "function", function: { name: getAllTickets } }] }
+        );
+        console.log(run, "run object");
+        runId = run.id
+     
+        
+      } catch (error) {
+        console.log(error)
+      }
+      
+
+      let retrieveRun=''
+
+     
+      
+     
+
+      const ticketDetails = await getAllTickets();
+
+      console.log(ticketDetails);
+
+      setInterval(async () => {
+        console.log("Paused for 2 seconds");
+
+        // Code to be executed after the pause
+        // ...
+
+        try {
+          try {
+            retrieveRun = await openai.beta.threads.runs.retrieve(
+             thread_id,
+             runId
+           );
+           
+         } catch (error) {
+           console.log(error)
+         }
+          const tool_id =
+            retrieveRun.required_action.submit_tool_outputs.tool_calls[0].id;
+          const submitTool = await openai.beta.threads.runs.submitToolOutputs(
+            thread_id,
+            runId,
+            {
+              tool_outputs: [
+                {
+                  tool_call_id: tool_id,
+                  output: JSON.stringify(ticketDetails.tickets),
+                },
+              ],
+            }
+          );
+
+          console.log(submitTool, "submit tool");
+        } catch (error) {
+          console.log(error);
+        }
+
+      
+      }, 7000);
+
+      // listMessages();
+  
+
+      const intervalId = setInterval(() => {
+        listMessages();
+        console.log('this request is firing')
+      }, 10000);
+  
+  
   };
 
   const styles = {
     chatContainer: {
-      width: 400,
+      width: 800,
       border: "1px solid #ccc",
       borderRadius: 8,
       overflow: "hidden",
     },
     chatBox: {
-      height: 300,
+      height: 600,
       overflow: "auto",
       padding: "16px",
     },
@@ -216,7 +344,7 @@ export default function ChatApp() {
             <div
               key={index}
               style={
-                message.sender === "user"
+                message.sender.role === "user" || message.sender === "user"
                   ? styles.userMessage
                   : styles.assistantMessage
               }
@@ -224,6 +352,21 @@ export default function ChatApp() {
               {message.text}
             </div>
           ))}
+
+          {/* {messages.forEach((message, index) => {
+            let style;
+            if (message.sender.role === "user" || message.sender === "user") {
+              style = styles.userMessage;
+            } else {
+              style = styles.assistantMessage;
+            }
+            return (
+              <div key={index} style={style}>
+                {message.text}
+              </div>
+            );
+          })} */}
+
           {/* {JSON.stringify(messages)} */}
         </Paper>
         <div style={styles.userInput}>
